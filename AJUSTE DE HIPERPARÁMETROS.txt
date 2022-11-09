@@ -1,0 +1,83 @@
+//DATOS//
+import pandas as pd 
+
+personas = pd.read_csv("ingresos.csv")
+personas
+
+
+//Bosque Aleatorio (clasificación)//
+
+from sklearn.ensemble import RandomForestClassifier
+
+bosque = RandomForestClassifier()
+bosque.get_params()
+
+
+//Búsqueda de rejilla //
+
+from sklearn.model_selection import GridSearchCV
+
+parametros = {"criterion": ("gini", "entropy"),
+              "n_estimators" : (10, 20, 30), 
+              "max_samples" : (1/3, 2/3)}
+
+#Ejemplos de scoring = "accuracy", "recall", "roc_auc", etc.
+
+rejilla = GridSearchCV(bosque, 
+                       parametros, 
+                       scoring="accuracy")
+
+rejilla.fit(personas[personas.columns[:-1]].values, 
+            personas["ingreso"].values)
+
+
+
+//Información de la búsqueda//
+
+sorted(rejilla.cv_results_.keys())
+
+
+//Rejilla de parámetros explorados//
+rejilla.cv_results_["params"]
+
+
+//Resultados de la búsqueda en rejilla//
+print(rejilla.cv_results_["rank_test_score"])
+print(rejilla.cv_results_["mean_test_score"])
+print(rejilla.best_score_)
+print(rejilla.best_params_)
+
+
+//Extracción del mejor método//
+print(rejilla.predict([[50, 16, 1, 1, 40]]))
+mejor_bosque = rejilla.best_estimator_
+print(mejor_bosque.predict([[50, 16, 1, 1, 40]]))
+
+
+
+
+
+//BÚSQUEDA ALEATORIA//
+from sklearn.model_selection import RandomizedSearchCV
+
+parametros = {"criterion": ("gini", "entropy"),
+              "n_estimators" : (10, 20, 30), 
+              "max_samples" : (1/3, 2/3)}
+
+rejilla_aleatoria = RandomizedSearchCV(bosque, 
+                                       parametros,
+                                       scoring = "accuracy", 
+                                       cv=8, 
+                                       n_iter=3)
+
+rejilla_aleatoria.fit(personas[personas.columns[:-1]].values,
+                      personas["ingreso"].values)
+
+
+//Parametros explorados Aleatoriamente//
+rejilla_aleatoria.cv_results_["params"]
+
+
+//Mejores parámtetros, seleccionados aleatoriamnete//
+print(rejilla_aleatoria.best_score_)
+print(rejilla_aleatoria.best_params_)

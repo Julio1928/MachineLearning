@@ -1,0 +1,19 @@
+import pandas as pd 
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+
+personas = pd.read_csv("datos/salario.csv")
+personas
+
+bosque = RandomForestClassifier()
+
+bosque.fit(personas[["edad", "estudio"]].values,
+          personas["ingreso"].values)
+
+print(bosque.score(personas[["edad", "estudio"]].values,
+                  personas["ingreso"].values))
+
+print(cross_val_score(bosque,
+                     personas[["edad", "estudio"]].values,
+                     personas["ingreso"].values,
+                     cv=5).mean())
